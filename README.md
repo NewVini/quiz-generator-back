@@ -15,7 +15,7 @@ Backend completo para um sistema de Quiz Builder desenvolvido com Node.js e Nest
 ## 📋 Pré-requisitos
 
 - Node.js (versão 16 ou superior)
-- PostgreSQL
+- MySQL (versão 5.7 ou superior)
 - npm ou yarn
 
 ## 🛠️ Instalação
@@ -59,8 +59,11 @@ CORS_ORIGIN=http://localhost:3000
 
 4. **Configure o banco de dados**
 ```bash
-# Crie o banco de dados PostgreSQL
-createdb quiz_builder
+# Opção 1: Execute o script SQL diretamente
+mysql -u root -p < scripts/create-tables.sql
+
+# Opção 2: Use o MySQL Workbench ou phpMyAdmin
+# Execute o conteúdo do arquivo scripts/create-tables.sql
 ```
 
 5. **Execute as migrações (desenvolvimento)**

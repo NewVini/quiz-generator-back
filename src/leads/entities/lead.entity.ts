@@ -29,10 +29,10 @@ export class Lead {
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone: string;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'json', nullable: true })
   custom_fields: Record<string, any>;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'json' })
   responses: Record<string, any>;
 
   @Column({ type: 'varchar', length: 100, nullable: true })

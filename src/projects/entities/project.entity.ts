@@ -29,7 +29,7 @@ export class Project {
   @Column({ type: 'varchar', length: 500, nullable: true })
   logo: string;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'json', nullable: true })
   settings: Record<string, any>;
 
   @CreateDateColumn()

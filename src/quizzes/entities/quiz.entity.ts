@@ -35,10 +35,10 @@ export class Quiz {
   })
   status: QuizStatus;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'json' })
   quiz_json: Record<string, any>;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'json', nullable: true })
   settings: Record<string, any>;
 
   @Column({ type: 'int', default: 0 })
