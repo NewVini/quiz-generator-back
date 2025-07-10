@@ -16,6 +16,12 @@ export enum UserRole {
   VIEWER = 'viewer',
 }
 
+export enum AuthProvider {
+  LOCAL = 'local',
+  GOOGLE = 'google',
+  FACEBOOK = 'facebook',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -31,8 +37,21 @@ export class User {
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   password_hash: string;
+
+  @Column({
+    type: 'enum',
+    enum: AuthProvider,
+    default: AuthProvider.LOCAL,
+  })
+  auth_provider: AuthProvider;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  provider_id: string; // ID do usuário no provedor (Google/Facebook)
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  avatar_url: string | null;
 
   @Column({
     type: 'enum',

@@ -21,15 +21,24 @@ import { Lead } from './leads/entities/lead.entity';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        url: configService.get('DATABASE_URL'),
-        entities: [User, Project, Quiz, Lead],
-        synchronize: false,
-        logging: configService.get('NODE_ENV') === 'development',
-        charset: 'utf8mb4',
-        timezone: 'Z',
-      }),
+      useFactory: (configService: ConfigService) => {
+        
+        const config = {
+          type: 'mysql' as const,
+          host: configService.get('DB_HOST'),
+          port: parseInt(configService.get('DB_PORT') || '3306'),
+          username: configService.get('DB_USERNAME'),
+          password: configService.get('DB_PASSWORD'),
+          database: configService.get('DB_NAME'),
+          entities: [User, Project, Quiz, Lead],
+          synchronize: false,
+          logging: configService.get('NODE_ENV') === 'development',
+          charset: 'utf8mb4',
+          timezone: 'Z',
+        };
+
+        return config;
+      },
       inject: [ConfigService],
     }),
     AuthModule,

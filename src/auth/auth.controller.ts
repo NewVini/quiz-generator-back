@@ -1,5 +1,7 @@
-import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, Res, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -26,6 +28,46 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  // Google OAuth routes
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Initiate Google OAuth login' })
+  async googleAuth() {
+    // This will redirect to Google
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Google OAuth callback' })
+  async googleAuthCallback(@Request() req, @Res() res: Response) {
+    const user = req.user;
+    const token = await this.authService.generateTokenForUser(user);
+    
+    // Redirect to frontend with token
+    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?token=${token}`;
+    res.redirect(redirectUrl);
+  }
+
+  // Facebook OAuth routes
+  @Get('facebook')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ summary: 'Initiate Facebook OAuth login' })
+  async facebookAuth() {
+    // This will redirect to Facebook
+  }
+
+  @Get('facebook/callback')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ summary: 'Facebook OAuth callback' })
+  async facebookAuthCallback(@Request() req, @Res() res: Response) {
+    const user = req.user;
+    const token = await this.authService.generateTokenForUser(user);
+    
+    // Redirect to frontend with token
+    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?token=${token}`;
+    res.redirect(redirectUrl);
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -40,6 +82,8 @@ export class AuthController {
       email: user.email,
       phone: user.phone,
       role: user.role,
+      auth_provider: user.auth_provider,
+      avatar_url: user.avatar_url,
     };
   }
 } 

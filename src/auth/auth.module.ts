@@ -8,6 +8,10 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { User } from '../users/entities/user.entity';
 
+// TODO: Implementar estratégias de autenticação
+// import { GoogleStrategy } from './strategies/google.strategy';
+// import { FacebookStrategy } from './strategies/facebook.strategy';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
