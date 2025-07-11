@@ -88,4 +88,45 @@ export class QuizzesService {
     
     return this.quizRepository.save(quiz);
   }
+
+  async findOnePublic(id: string): Promise<Quiz | null> {
+    const quiz = await this.quizRepository.findOne({
+      where: { 
+        id,
+        status: QuizStatus.PUBLISHED // Apenas quizzes publicados
+      },
+      relations: ['project'],
+    });
+
+    if (!quiz) {
+      return null;
+    }
+
+    return quiz;
+  }
+
+  async findPublicByProject(projectId: string): Promise<Quiz[]> {
+    return this.quizRepository.find({
+      where: { 
+        project_id: projectId,
+        status: QuizStatus.PUBLISHED // Apenas quizzes publicados
+      },
+      relations: ['project'],
+      order: { published_at: 'DESC' },
+    });
+  }
+
+  async findOneAny(id: string): Promise<Quiz | null> {
+    // Buscar quiz sem relations para evitar problemas de permissão
+    const quiz = await this.quizRepository.findOne({
+      where: { id },
+      select: ['id', 'name', 'project_id', 'status', 'quiz_json', 'settings', 'lead_count', 'created_at', 'updated_at', 'published_at']
+    });
+
+    if (!quiz) {
+      return null;
+    }
+
+    return quiz;
+  }
 } 

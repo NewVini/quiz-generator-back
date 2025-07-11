@@ -3,17 +3,9 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { User, AuthProvider } from '../users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-
-interface OAuthUserData {
-  email: string;
-  name: string;
-  avatar_url?: string;
-  provider_id: string;
-  auth_provider: AuthProvider;
-}
 
 @Injectable()
 export class AuthService {
@@ -46,7 +38,6 @@ export class AuthService {
       name,
       phone,
       role: 'owner' as any,
-      auth_provider: AuthProvider.LOCAL,
     });
 
     const savedUser = await this.userRepository.save(user);
@@ -62,8 +53,6 @@ export class AuthService {
         email: savedUser.email,
         phone: savedUser.phone,
         role: savedUser.role,
-        auth_provider: savedUser.auth_provider,
-        avatar_url: savedUser.avatar_url,
       },
       token,
     };
@@ -79,11 +68,6 @@ export class AuthService {
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // Check if user is using OAuth
-    if (user.auth_provider !== AuthProvider.LOCAL) {
-      throw new UnauthorizedException('Please login with your OAuth provider');
     }
 
     // Verify password
@@ -104,41 +88,9 @@ export class AuthService {
         email: user.email,
         phone: user.phone,
         role: user.role,
-        auth_provider: user.auth_provider,
-        avatar_url: user.avatar_url,
       },
       token,
     };
-  }
-
-  async findOrCreateOAuthUser(oauthData: OAuthUserData): Promise<User> {
-    // Primeiro, tentar encontrar usuário pelo email
-    let user = await this.userRepository.findOne({
-      where: { email: oauthData.email },
-    });
-
-          if (user) {
-        // Se o usuário existe mas não tem provider_id, atualizar
-        if (!user.provider_id) {
-          user.provider_id = oauthData.provider_id;
-          user.auth_provider = oauthData.auth_provider;
-          user.avatar_url = oauthData.avatar_url || null;
-          await this.userRepository.save(user);
-        }
-        return user;
-      }
-
-    // Se não existe, criar novo usuário
-    const newUser = this.userRepository.create({
-      email: oauthData.email,
-      name: oauthData.name,
-      avatar_url: oauthData.avatar_url || null,
-      provider_id: oauthData.provider_id,
-      auth_provider: oauthData.auth_provider,
-      role: 'owner' as any,
-    });
-
-    return await this.userRepository.save(newUser);
   }
 
   async generateTokenForUser(user: User) {

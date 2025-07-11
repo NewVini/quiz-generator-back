@@ -5,7 +5,7 @@ import { Project } from './src/projects/entities/project.entity';
 import { Quiz } from './src/quizzes/entities/quiz.entity';
 import { Lead } from './src/leads/entities/lead.entity';
 
-console.log(process.env.DB_HOST,"oiasdoijasd");
+
 
 export default new DataSource({
   type: 'mysql',
@@ -17,7 +17,7 @@ export default new DataSource({
   entities: [User, Project, Quiz, Lead],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
-  logging: process.env.NODE_ENV === 'development',
+  logging: false, // Desabilitar todos os logs SQL
   charset: 'utf8mb4',
   timezone: 'Z',
 });

@@ -25,6 +25,7 @@
     "schema:sync": "npm run typeorm -- schema:sync -d ormconfig.ts",
     "db:setup": "node scripts/clean-setup.js",
     "db:reset": "npm run migration:revert && npm run migration:run && npm run seed:run",
+    "db:clean": "node scripts/clean-database.js",
     "seed:run": "ts-node scripts/seed.ts",
     "seed:create": "ts-node scripts/create-seed.ts"
   },

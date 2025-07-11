@@ -10,6 +10,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { LeadsService } from './leads.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
+import { LeadResponseDto } from './dto/lead-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Leads')
@@ -27,11 +28,15 @@ export class LeadsController {
 
   @Get(':quizId/leads')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get all leads for a quiz (authenticated)' })
-  @ApiResponse({ status: 200, description: 'Leads retrieved successfully' })
+  @ApiOperation({ summary: 'Get all leads for a quiz with detailed responses (authenticated)' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Leads retrieved successfully with detailed responses',
+    type: [LeadResponseDto]
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Quiz not found' })
-  findAllByQuiz(@Param('quizId') quizId: string, @Request() req) {
+  findAllByQuiz(@Param('quizId') quizId: string, @Request() req): Promise<LeadResponseDto[]> {
     return this.leadsService.findAllByQuiz(quizId, req.user.sub);
   }
 
