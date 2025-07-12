@@ -1,9 +1,14 @@
 const mysql = require('mysql2/promise');
+const { exec } = require('child_process');
+const { promisify } = require('util');
+const execAsync = promisify(exec);
 
-async function cleanSetup() {
+async function completeSetup() {
   let connection;
   
   try {
+    console.log('🚀 Iniciando setup completo do banco de dados...');
+    
     // Conectar ao MySQL
     connection = await mysql.createConnection({
       host: 'localhost',
@@ -36,16 +41,37 @@ async function cleanSetup() {
     await connection.execute('SET FOREIGN_KEY_CHECKS = 1');
 
     console.log('✅ Banco de dados limpo com sucesso');
-    console.log('🔄 Execute agora: npm run migration:run');
-    console.log('🌱 Depois execute: npm run seed:run');
+
+    // Fechar conexão
+    await connection.end();
+
+    // Executar migrations
+    console.log('📋 Executando migrations...');
+    await execAsync('npm run migration:run');
+    console.log('✅ Migrations executadas');
+
+    // Executar seed
+    console.log('🌱 Executando seed...');
+    await execAsync('npm run seed:run');
+    console.log('✅ Seed executado');
+
+    console.log('🎉 Setup completo concluído!');
+    console.log('\n📊 Dados disponíveis:');
+    console.log('- 2 usuários de teste');
+    console.log('- 2 projetos');
+    console.log('- 2 quizzes');
+    console.log('- 3 leads de exemplo');
+    console.log('\n🔑 Credenciais:');
+    console.log('- joao@exemplo.com / senha123');
+    console.log('- maria@exemplo.com / senha123');
 
   } catch (error) {
-    console.error('❌ Erro ao limpar banco:', error.message);
-  } finally {
+    console.error('❌ Erro durante setup:', error.message);
     if (connection) {
       await connection.end();
     }
+    process.exit(1);
   }
 }
 
-cleanSetup(); 
+completeSetup(); 
