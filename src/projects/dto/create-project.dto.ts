@@ -11,7 +11,11 @@ export class CreateProjectDto {
   @IsString()
   domain?: string;
 
-  @ApiProperty({ description: 'URL do logo do projeto (opcional)', example: 'https://exemplo.com/logo.png', required: false })
+  @ApiProperty({
+    description: 'Logo do projeto em base64 (opcional)',
+    example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+    required: false
+  })
   @IsOptional()
   @IsString()
   logo?: string;

@@ -13,6 +13,8 @@ import { User } from './users/entities/user.entity';
 import { Project } from './projects/entities/project.entity';
 import { Quiz } from './quizzes/entities/quiz.entity';
 import { Lead } from './leads/entities/lead.entity';
+import { ProjectSettingsModule } from './project-settings/project-settings.module';
+import { ProjectSetting } from './project-settings/entities/project-setting.entity/project-setting.entity';
 
 @Module({
   imports: [
@@ -25,8 +27,8 @@ import { Lead } from './leads/entities/lead.entity';
       port: 3306,
       username: 'root',
       password: '',
-      database: 'quizzes',
-      entities: [User, Project, Quiz, Lead],
+      database: 'quizzes2',
+      entities: [User, Project, Quiz, Lead, ProjectSetting],
       synchronize: false, // Desabilitar synchronize
       logging: false, // Desabilitar logs SQL
       charset: 'utf8mb4',
@@ -38,6 +40,7 @@ import { Lead } from './leads/entities/lead.entity';
     QuizzesModule,
     LeadsModule,
     StatsModule,
+    ProjectSettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

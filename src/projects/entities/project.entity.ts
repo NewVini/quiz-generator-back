@@ -26,7 +26,7 @@ export class Project {
   @Column({ type: 'varchar', length: 255, nullable: true })
   domain: string;
 
-  @Column({ type: 'varchar', length: 500, nullable: true })
+  @Column({ type: 'longtext', nullable: true })
   logo: string;
 
   @Column({ type: 'json', nullable: true })

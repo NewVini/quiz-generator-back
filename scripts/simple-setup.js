@@ -31,7 +31,7 @@ async function setupDatabase() {
       user: 'root',
       password: '',
       port: 3306,
-      database: 'quizzes'
+     database: 'quizzes2',
     });
 
     // Ler e executar script de criação de tabelas

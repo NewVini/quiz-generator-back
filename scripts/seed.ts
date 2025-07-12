@@ -11,7 +11,7 @@ const dataSource = new DataSource({
   port: 3306,
   username: 'root',
   password: '',
-  database: 'quizzes',
+ database: 'quizzes2',
   entities: [User, Project, Quiz, Lead],
   synchronize: false,
   logging: false,

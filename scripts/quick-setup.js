@@ -29,7 +29,7 @@ async function setupDatabase() {
       user: 'root',
       password: '',
       port: 3306,
-      database: 'quizzes'
+     database: 'quizzes2',
     });
 
     console.log('✅ Banco de dados pronto para migrations');
