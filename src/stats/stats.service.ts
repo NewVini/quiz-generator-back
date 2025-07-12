@@ -99,10 +99,24 @@ export class StatsService {
       .where('project.user_id = :userId', { userId })
       .getCount();
 
+    // Novo: leads por dia
+    const leadsPerDay = await this.leadRepository
+      .createQueryBuilder('lead')
+      .select("DATE(lead.created_at)", "date")
+      .addSelect("COUNT(*)", "total")
+      .innerJoin('lead.project', 'project')
+      .where('project.user_id = :userId', { userId })
+      .groupBy('DATE(lead.created_at)')
+      .orderBy('date', 'ASC')
+      .getRawMany();
+
+      console.log(leadsPerDay);
+
     return {
       total_projects: projectCount,
       total_quizzes: quizCount,
       total_leads: totalLeads,
+      leads_per_day: leadsPerDay,
     };
   }
 } 

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import * as bcrypt from 'bcryptjs';
 import { User } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly subscriptionsService: SubscriptionsService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -43,7 +45,7 @@ export class AuthService {
     const savedUser = await this.userRepository.save(user);
 
     // Generate JWT token
-    const payload = { sub: savedUser.id, email: savedUser.email };
+    const payload = { sub: savedUser.id, email: savedUser.email, role: savedUser.role };
     const token = this.jwtService.sign(payload);
 
     return {
@@ -55,6 +57,7 @@ export class AuthService {
         role: savedUser.role,
       },
       token,
+      message: 'Usuário registrado com sucesso. Crie uma subscription para acessar o sistema.',
     };
   }
 
@@ -77,8 +80,62 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Se for admin, permite login sem subscription
+    if (user.role === 'admin') {
+      const payload = { sub: user.id, email: user.email, role: user.role };
+      const token = this.jwtService.sign(payload);
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+        },
+        subscription: null,
+        token,
+        message: 'Login de admin permitido sem necessidade de subscription.'
+      };
+    }
+
+    // Check if user has active subscription
+    const activeSubscription = await this.subscriptionsService.findActiveByUserId(user.id);
+    
+    if (!activeSubscription) {
+      throw new ForbiddenException({
+        message: 'Subscription required',
+        code: 'SUBSCRIPTION_REQUIRED',
+        details: {
+          message: 'Você precisa de uma subscription ativa para acessar o sistema',
+          availablePlans: await this.subscriptionsService.getAvailablePlans(),
+          user_id: user.id
+        }
+      });
+    }
+
+    // Check if subscription is expired
+    const currentDate = new Date();
+    const endDate = new Date(activeSubscription.end_date);
+    
+    if (endDate < currentDate) {
+      throw new ForbiddenException({
+        message: 'Subscription expired',
+        code: 'SUBSCRIPTION_EXPIRED',
+        details: {
+          message: 'Sua subscription expirou. Renove para continuar usando o sistema.',
+          subscription: {
+            id: activeSubscription.id,
+            plan_type: activeSubscription.plan_type,
+            end_date: activeSubscription.end_date,
+            next_billing: activeSubscription.next_billing
+          },
+          user_id: user.id
+        }
+      });
+    }
+
     // Generate JWT token
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
     const token = this.jwtService.sign(payload);
 
     return {
@@ -89,12 +146,24 @@ export class AuthService {
         phone: user.phone,
         role: user.role,
       },
+      subscription: {
+        id: activeSubscription.id,
+        plan_type: activeSubscription.plan_type,
+        status: activeSubscription.status,
+        end_date: activeSubscription.end_date,
+        next_billing: activeSubscription.next_billing,
+        quizzes_limit: activeSubscription.quizzes_limit,
+        leads_limit: activeSubscription.leads_limit,
+        quizzes_used: activeSubscription.quizzes_used,
+        leads_used: activeSubscription.leads_used,
+        price: activeSubscription.price
+      },
       token,
     };
   }
 
   async generateTokenForUser(user: User) {
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
     return this.jwtService.sign(payload);
   }
 

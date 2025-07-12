@@ -7,6 +7,7 @@ const { Project } = require('./src/projects/entities/project.entity');
 const { Quiz } = require('./src/quizzes/entities/quiz.entity');
 const { Lead } = require('./src/leads/entities/lead.entity');
 const { ProjectSetting } = require('./src/project-settings/entities/project-setting.entity/project-setting.entity');
+const { Subscription } = require('./src/subscriptions/entities/subscription.entity');
 
 module.exports = new DataSource({
   type: 'mysql',
@@ -15,7 +16,7 @@ module.exports = new DataSource({
   username: 'root',
   password: '',
   database: 'quizzes2',
-  entities: [User, Project, Quiz, Lead, ProjectSetting],
+  entities: [User, Project, Quiz, Lead, ProjectSetting, Subscription],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
   logging: true,

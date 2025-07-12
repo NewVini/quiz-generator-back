@@ -27,4 +27,8 @@ export class UsersService {
       where: { email },
     });
   }
+
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find();
+  }
 } 
