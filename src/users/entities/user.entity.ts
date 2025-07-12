@@ -8,6 +8,7 @@ import {
   Index,
 } from 'typeorm';
 import { Project } from '../../projects/entities/project.entity';
+import { Billing } from '../../billings/entities/billing.entity';
 
 export enum UserRole {
   OWNER = 'owner',
@@ -49,4 +50,7 @@ export class User {
 
   @OneToMany(() => Project, (project) => project.user)
   projects: Project[];
+
+  @OneToMany(() => Billing, (billing) => billing.user)
+  billings: Billing[];
 } 

@@ -6,6 +6,7 @@ import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
+import { BillingsService } from '../billings/billings.service';
 
 @Injectable()
 export class SubscriptionsService {
@@ -13,6 +14,7 @@ export class SubscriptionsService {
     @InjectRepository(Subscription)
     private readonly subscriptionRepository: Repository<Subscription>,
     private readonly usersService: UsersService,
+    private readonly billingsService: BillingsService,
   ) {}
 
   // Configurações dos planos
@@ -37,6 +39,13 @@ export class SubscriptionsService {
   async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Subscription> {
     const { plan_type, user_id } = createSubscriptionDto;
     console.log('USER_ID:', user_id);
+    
+    // Verificar se o usuário pode criar uma subscription (tem billing pago ou está em teste)
+    const canCreate = await this.billingsService.canCreateSubscription(user_id);
+    if (!canCreate) {
+      throw new BadRequestException('Usuário precisa ter um billing pago ou estar em período de teste para criar uma subscription');
+    }
+
     // Verificar se o usuário já tem uma subscription ativa
     const existingSubscription = await this.findActiveByUserId(user_id);
     if (existingSubscription) {
@@ -58,7 +67,15 @@ export class SubscriptionsService {
       leads_used: 0,
     });
 
-    return this.subscriptionRepository.save(subscription);
+    const savedSubscription = await this.subscriptionRepository.save(subscription);
+
+    // Criar billing de teste gratuito se o usuário não tem billing pago
+    const hasPaidBilling = await this.billingsService.hasPaidBilling(user_id);
+    if (!hasPaidBilling) {
+      await this.billingsService.createTrialBilling(user_id, savedSubscription.id);
+    }
+
+    return savedSubscription;
   }
 
   async findAll(): Promise<Subscription[]> {

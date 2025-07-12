@@ -17,6 +17,8 @@ import { ProjectSettingsModule } from './project-settings/project-settings.modul
 import { ProjectSetting } from './project-settings/entities/project-setting.entity/project-setting.entity';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { Subscription } from './subscriptions/entities/subscription.entity';
+import { BillingsModule } from './billings/billings.module';
+import { Billing } from './billings/entities/billing.entity';
 
 @Module({
   imports: [
@@ -30,7 +32,7 @@ import { Subscription } from './subscriptions/entities/subscription.entity';
       username: 'root',
       password: '',
       database: 'quizzes2',
-      entities: [User, Project, Quiz, Lead, ProjectSetting, Subscription],
+      entities: [User, Project, Quiz, Lead, ProjectSetting, Subscription, Billing],
       synchronize: false, // Desabilitar synchronize
       logging: false, // Desabilitar logs SQL
       charset: 'utf8mb4',
@@ -44,6 +46,7 @@ import { Subscription } from './subscriptions/entities/subscription.entity';
     StatsModule,
     ProjectSettingsModule,
     SubscriptionsModule,
+    BillingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
