@@ -3,6 +3,8 @@ import { User, UserRole } from '../src/users/entities/user.entity';
 import { Project } from '../src/projects/entities/project.entity';
 import { Quiz, QuizStatus } from '../src/quizzes/entities/quiz.entity';
 import { Lead } from '../src/leads/entities/lead.entity';
+import { Subscription } from '../src/subscriptions/entities/subscription.entity';
+import { Billing } from '../src/billings/entities/billing.entity';
 import * as bcrypt from 'bcryptjs';
 
 const dataSource = new DataSource({
@@ -11,8 +13,8 @@ const dataSource = new DataSource({
   port: 3306,
   username: 'root',
   password: '',
- database: 'quizzes2',
-  entities: [User, Project, Quiz, Lead],
+  database: 'quizzes2',
+  entities: [User, Project, Quiz, Lead, Subscription, Billing],
   synchronize: false,
   logging: false,
   charset: 'utf8mb4',

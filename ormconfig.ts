@@ -6,16 +6,17 @@ import { Quiz } from './src/quizzes/entities/quiz.entity';
 import { Lead } from './src/leads/entities/lead.entity';
 import { ProjectSetting } from './src/project-settings/entities/project-setting.entity/project-setting.entity';
 import { Subscription } from './src/subscriptions/entities/subscription.entity';
+import { Billing } from './src/billings/entities/billing.entity';
 
 
 export default new DataSource({
   type: 'mysql',
-  host: 'localhost',
+  host: '193.203.175.69',
   port: 3306,
-  username: 'root',
-  password: '',
-  database: 'quizzes2',
-  entities: [User, Project, Quiz, Lead, ProjectSetting, Subscription],
+  username: 'u228402541_opsevor',
+  password: 'ywcY4Vg5h|G',
+  database: 'u228402541_opsevor',
+  entities: [User, Project, Quiz, Lead, ProjectSetting, Subscription, Billing],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
   logging: false, // Desabilitar todos os logs SQL
