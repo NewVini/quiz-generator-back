@@ -10,7 +10,7 @@ async function cleanSetup() {
       port: 3306,
       user: 'root',
       password: '',
-      database: 'quizzes2'
+      database: 'u228402541_opsevor'
     });
 
     console.log('✅ Conectado ao banco de dados');
@@ -22,7 +22,7 @@ async function cleanSetup() {
     const [tables] = await connection.execute(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_schema = 'quizzes2'
+      WHERE table_schema = 'u228402541_opsevor'
     `);
 
     // Remover todas as tabelas

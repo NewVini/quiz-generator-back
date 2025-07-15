@@ -9,16 +9,20 @@ import * as bcrypt from 'bcryptjs';
 
 const dataSource = new DataSource({
   type: 'mysql',
-  host: 'localhost',
+  host: '193.203.175.69',
   port: 3306,
-  username: 'root',
-  password: '',
-  database: 'quizzes2',
+  username: 'u228402541_opsevor',
+  password: 'ywcY4Vg5h|G',
+  database: 'u228402541_opsevor',
   entities: [User, Project, Quiz, Lead, Subscription, Billing],
   synchronize: false,
   logging: false,
   charset: 'utf8mb4',
   timezone: 'Z',
+  extra: {
+    charset: 'utf8mb4_unicode_ci',
+    collation: 'utf8mb4_unicode_ci',
+  },
 });
 
 async function seed() {

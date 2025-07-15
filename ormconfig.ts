@@ -22,4 +22,8 @@ export default new DataSource({
   logging: false, // Desabilitar todos os logs SQL
   charset: 'utf8mb4',
   timezone: 'Z',
+  extra: {
+    charset: 'utf8mb4_unicode_ci',
+    collation: 'utf8mb4_unicode_ci',
+  },
 });

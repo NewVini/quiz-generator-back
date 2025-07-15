@@ -15,7 +15,7 @@ module.exports = new DataSource({
   port: 3306,
   username: 'root',
   password: '',
-  database: 'quizzes2',
+  database: 'u228402541_opsevor',
   entities: [User, Project, Quiz, Lead, ProjectSetting, Subscription],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,

@@ -10,7 +10,7 @@ async function checkTables() {
       port: 3306,
       user: 'root',
       password: '',
-      database: 'quizzes2'
+      database: 'u228402541_opsevor'
     });
 
     console.log('✅ Conectado ao banco de dados');
@@ -19,7 +19,7 @@ async function checkTables() {
     const [tables] = await connection.execute(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_schema = 'quizzes2'
+      WHERE table_schema = 'u228402541_opsevor'
       ORDER BY table_name
     `);
 
@@ -36,7 +36,7 @@ async function checkTables() {
     const [subscriptionTable] = await connection.execute(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_schema = 'quizzes2' AND table_name = 'subscriptions'
+      WHERE table_schema = 'u228402541_opsevor' AND table_name = 'subscriptions'
     `);
 
     if (subscriptionTable.length > 0) {
@@ -46,7 +46,7 @@ async function checkTables() {
       const [columns] = await connection.execute(`
         SELECT column_name, data_type, is_nullable, column_default
         FROM information_schema.columns 
-        WHERE table_schema = 'quizzes2' AND table_name = 'subscriptions'
+        WHERE table_schema = 'u228402541_opsevor' AND table_name = 'subscriptions'
         ORDER BY ordinal_position
       `);
       

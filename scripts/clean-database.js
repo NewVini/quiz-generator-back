@@ -6,7 +6,7 @@ async function cleanDatabase() {
     port: 3306,
     user: 'root',
     password: '',
-   database: 'quizzes2',,
+   database: 'u228402541_opsevor',,
   });
 
   try {

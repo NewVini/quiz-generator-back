@@ -99,7 +99,7 @@ CREATE TABLE `billings` (
 
 ```bash
 # Conectar ao banco
-mysql -u root -p quizzes2
+mysql -u root -p u228402541_opsevor
 
 # Executar os scripts SQL
 ```
@@ -108,10 +108,10 @@ mysql -u root -p quizzes2
 
 ```bash
 # Para subscriptions
-mysql -u root -p quizzes2 -e "CREATE TABLE \`subscriptions\` (\`id\` varchar(36) NOT NULL, \`user_id\` varchar(255) NOT NULL, \`plan_type\` varchar(20) NOT NULL, \`status\` varchar(20) NOT NULL, \`start_date\` date NOT NULL, \`end_date\` date NOT NULL, \`next_billing\` date NOT NULL, \`quizzes_limit\` int NOT NULL DEFAULT '50', \`leads_limit\` int NOT NULL DEFAULT '10000', \`quizzes_used\` int NOT NULL DEFAULT '0', \`leads_used\` int NOT NULL DEFAULT '0', \`price\` decimal(10,2) NOT NULL DEFAULT '0.00', \`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (\`id\`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+mysql -u root -p u228402541_opsevor -e "CREATE TABLE \`subscriptions\` (\`id\` varchar(36) NOT NULL, \`user_id\` varchar(255) NOT NULL, \`plan_type\` varchar(20) NOT NULL, \`status\` varchar(20) NOT NULL, \`start_date\` date NOT NULL, \`end_date\` date NOT NULL, \`next_billing\` date NOT NULL, \`quizzes_limit\` int NOT NULL DEFAULT '50', \`leads_limit\` int NOT NULL DEFAULT '10000', \`quizzes_used\` int NOT NULL DEFAULT '0', \`leads_used\` int NOT NULL DEFAULT '0', \`price\` decimal(10,2) NOT NULL DEFAULT '0.00', \`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (\`id\`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 
 # Para billings
-mysql -u root -p quizzes2 -e "CREATE TABLE \`billings\` (\`id\` varchar(36) NOT NULL, \`subscription_id\` varchar(36) NOT NULL, \`user_id\` varchar(255) NOT NULL, \`amount\` decimal(10,2) NOT NULL, \`currency\` varchar(3) NOT NULL DEFAULT 'BRL', \`status\` varchar(20) NOT NULL DEFAULT 'pending', \`payment_method\` varchar(50) NULL, \`payment_gateway\` varchar(50) NULL, \`gateway_transaction_id\` varchar(255) NULL, \`billing_date\` date NOT NULL, \`due_date\` date NOT NULL, \`paid_at\` datetime NULL, \`description\` text NULL, \`metadata\` json NULL, \`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (\`id\`), INDEX \`IDX_billings_subscription_id\` (\`subscription_id\`), INDEX \`IDX_billings_user_id\` (\`user_id\`), INDEX \`IDX_billings_status\` (\`status\`), INDEX \`IDX_billings_billing_date\` (\`billing_date\`), CONSTRAINT \`FK_billings_subscription_id\` FOREIGN KEY (\`subscription_id\`) REFERENCES \`subscriptions\` (\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+mysql -u root -p u228402541_opsevor -e "CREATE TABLE \`billings\` (\`id\` varchar(36) NOT NULL, \`subscription_id\` varchar(36) NOT NULL, \`user_id\` varchar(255) NOT NULL, \`amount\` decimal(10,2) NOT NULL, \`currency\` varchar(3) NOT NULL DEFAULT 'BRL', \`status\` varchar(20) NOT NULL DEFAULT 'pending', \`payment_method\` varchar(50) NULL, \`payment_gateway\` varchar(50) NULL, \`gateway_transaction_id\` varchar(255) NULL, \`billing_date\` date NOT NULL, \`due_date\` date NOT NULL, \`paid_at\` datetime NULL, \`description\` text NULL, \`metadata\` json NULL, \`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (\`id\`), INDEX \`IDX_billings_subscription_id\` (\`subscription_id\`), INDEX \`IDX_billings_user_id\` (\`user_id\`), INDEX \`IDX_billings_status\` (\`status\`), INDEX \`IDX_billings_billing_date\` (\`billing_date\`), CONSTRAINT \`FK_billings_subscription_id\` FOREIGN KEY (\`subscription_id\`) REFERENCES \`subscriptions\` (\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 ```
 
 ### Opção 3: Via arquivo SQL
@@ -119,7 +119,7 @@ mysql -u root -p quizzes2 -e "CREATE TABLE \`billings\` (\`id\` varchar(36) NOT 
 1. Crie um arquivo `create_tables.sql` com os scripts acima
 2. Execute:
 ```bash
-mysql -u root -p quizzes2 < create_tables.sql
+mysql -u root -p u228402541_opsevor < create_tables.sql
 ```
 
 ## Ordem de Execução
