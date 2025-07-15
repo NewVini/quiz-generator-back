@@ -11,11 +11,11 @@ import { Billing } from './src/billings/entities/billing.entity';
 
 export default new DataSource({
   type: 'mysql',
-  host: '193.203.175.69',
+  host: 'localhost',
   port: 3306,
-  username: 'u228402541_opsevor',
-  password: 'ywcY4Vg5h|G',
-  database: 'u228402541_opsevor',
+  username: 'root',
+  password: '',
+  database: 'quizzes2',
   entities: [User, Project, Quiz, Lead, ProjectSetting, Subscription, Billing],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
