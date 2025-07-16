@@ -4,6 +4,7 @@ import { SubscriptionsService } from './subscriptions.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UserRole } from 'src/users/entities/user.entity';
 
 @ApiTags('Subscriptions - Sistema de Planos e Limites')
 @Controller('subscriptions')
@@ -325,11 +326,11 @@ export class SubscriptionsController {
   ] } })
   @ApiResponse({ status: 403, description: 'Apenas administradores podem acessar este recurso.' })
   async listAllUsersWithSubscriptionStatus(@Request() req) {
-    if (req.user?.role !== 'admin') {
+    if (req.user?.role !== UserRole.SYSTEM_ADMIN) {
       throw new ForbiddenException('Apenas administradores podem acessar este recurso.');
     }
     // Busca todos os usuários reais
-    const users = await this.subscriptionsService['usersService'].findAll();
+    const users = await this.subscriptionsService['usersService'].findAll(req.user.sub);
     console.log('USERS ENCONTRADOS:', users);
     // Busca todas as subscriptions ativas
     const subscriptions = await this.subscriptionsService['subscriptionRepository'].find({ where: { status: 'active' } });

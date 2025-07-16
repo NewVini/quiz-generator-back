@@ -5,7 +5,7 @@ import { Subscription } from './entities/subscription.entity';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { UsersService } from '../users/users.service';
-import { User } from '../users/entities/user.entity';
+import { User, UserRole } from '../users/entities/user.entity';
 import { BillingsService } from '../billings/billings.service';
 
 @Injectable()
@@ -239,26 +239,26 @@ export class SubscriptionsService {
     return renewed;
   }
 
-  async listUsersWithPlanStatus(): Promise<any[]> {
-    // Busca todos os usuários
-    const users = await this.usersService.findAll();
-    console.log('USERS ENCONTRADOS:', users);
-    // Busca todas as subscriptions ativas
-    const subscriptions = await this.subscriptionRepository.find({ where: { status: 'active' } });
-    console.log('SUBSCRIPTIONS ATIVAS:', subscriptions);
-    const activeMap = new Map(subscriptions.map(s => [s.user_id, s]));
-    const result = users.map(user => {
-      const activeSub = activeMap.get(user.id);
-      return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        planStatus: user.role === 'admin' ? 'admin' : (activeSub ? 'active' : 'inactive'),
-        subscriptionId: activeSub ? activeSub.id : null,
-      };
-    });
-    console.log('RESULTADO FINAL:', result);
-    return result;
-  }
+//   async listUsersWithPlanStatus(): Promise<any[]> {
+//     // Busca todos os usuários
+//     const users = await this.usersService.findAll();
+//     console.log('USERS ENCONTRADOS:', users);
+//     // Busca todas as subscriptions ativas
+//     const subscriptions = await this.subscriptionRepository.find({ where: { status: 'active' } });
+//     console.log('SUBSCRIPTIONS ATIVAS:', subscriptions);
+//     const activeMap = new Map(subscriptions.map(s => [s.user_id, s]));
+//     const result = users.map(user => {
+//       const activeSub = activeMap.get(user.id);
+//       return {
+//         id: user.id,
+//         name: user.name,
+//         email: user.email,
+//         role: user.role,
+//         planStatus: user.role === UserRole.SYSTEM_ADMIN ? 'admin' : (activeSub ? 'active' : 'inactive'),
+//         subscriptionId: activeSub ? activeSub.id : null,
+//       };
+//     });
+//     console.log('RESULTADO FINAL:', result);
+//     return result;
+//   }
 } 

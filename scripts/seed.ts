@@ -1,28 +1,31 @@
+import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { User, UserRole } from '../src/users/entities/user.entity';
+import { UserPermission } from '../src/users/entities/user-permission.entity';
 import { Project } from '../src/projects/entities/project.entity';
+import { ProjectUser } from '../src/projects/entities/project-user.entity';
+import { ProjectInvite } from '../src/projects/entities/project-invite.entity';
+import { UserInvite } from '../src/users/entities/user-invite.entity';
 import { Quiz, QuizStatus } from '../src/quizzes/entities/quiz.entity';
 import { Lead } from '../src/leads/entities/lead.entity';
+import { ProjectSetting } from '../src/project-settings/entities/project-setting.entity/project-setting.entity';
 import { Subscription } from '../src/subscriptions/entities/subscription.entity';
 import { Billing } from '../src/billings/entities/billing.entity';
 import * as bcrypt from 'bcryptjs';
 
 const dataSource = new DataSource({
   type: 'mysql',
-  host: '193.203.175.69',
-  port: 3306,
-  username: 'u228402541_opsevor',
-  password: 'ywcY4Vg5h|G',
-  database: 'u228402541_opsevor',
-  entities: [User, Project, Quiz, Lead, Subscription, Billing],
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '3306'),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  entities: [User, UserPermission, Project, ProjectUser, ProjectInvite, UserInvite, Quiz, Lead, ProjectSetting, Subscription, Billing],
+  migrations: ['src/migrations/*.ts'],
   synchronize: false,
-  logging: false,
+  logging: process.env.NODE_ENV === 'development',
   charset: 'utf8mb4',
   timezone: 'Z',
-  extra: {
-    charset: 'utf8mb4_unicode_ci',
-    collation: 'utf8mb4_unicode_ci',
-  },
 });
 
 async function seed() {
@@ -38,6 +41,10 @@ async function seed() {
     await dataSource.createQueryBuilder().delete().from(Quiz).execute();
     await dataSource.createQueryBuilder().delete().from(Project).execute();
     await dataSource.createQueryBuilder().delete().from(User).execute();
+    await dataSource.createQueryBuilder().delete().from(UserPermission).execute();
+    await dataSource.createQueryBuilder().delete().from(UserInvite).execute();
+    await dataSource.createQueryBuilder().delete().from(ProjectInvite).execute();
+    await dataSource.createQueryBuilder().delete().from(ProjectUser).execute();
 
     // Criar usuários
     console.log('👥 Criando usuários...');
@@ -47,7 +54,7 @@ async function seed() {
       email: 'joao@exemplo.com',
       phone: '+5511999999999',
       password_hash: await bcrypt.hash('senha123', 10),
-      role: UserRole.OWNER,
+      role: UserRole.CREATOR,
     });
 
     const user2 = dataSource.getRepository(User).create({
@@ -56,10 +63,28 @@ async function seed() {
       email: 'maria@exemplo.com',
       phone: '+5511888888888',
       password_hash: await bcrypt.hash('senha123', 10),
-      role: UserRole.ADMIN,
+      role: UserRole.SYSTEM_ADMIN,
     });
 
-    await dataSource.getRepository(User).save([user1, user2]);
+    const user3 = dataSource.getRepository(User).create({
+      id: '550e8400-e29b-41d4-a716-446655440002',
+      name: 'Owner',
+      email: 'a@a.com',
+      phone: '+5511888888838',
+      password_hash: await bcrypt.hash('123', 10),
+      role: UserRole.CREATOR,
+    });
+
+    const user4 = dataSource.getRepository(User).create({
+      id: '550e8400-e29b-41d4-a716-446655440003',
+      name: 'Admin',
+      email: 'b@b.com',
+      phone: '+5511888888848',
+      password_hash: await bcrypt.hash('123', 10),
+      role: UserRole.SYSTEM_ADMIN,
+    });
+
+    await dataSource.getRepository(User).save([user1, user2, user3, user4]);
     console.log('✅ Usuários criados');
 
     // Criar projetos
@@ -211,6 +236,8 @@ async function seed() {
     console.log('\n🔑 Credenciais de teste:');
     console.log('- Email: joao@exemplo.com | Senha: senha123');
     console.log('- Email: maria@exemplo.com | Senha: senha123');
+    console.log('- Email: a@a.com | Senha: 123');
+    console.log('- Email: b@b.com | Senha: 123');
 
   } catch (error) {
     console.error('❌ Erro durante o seed:', error);

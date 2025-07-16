@@ -11,6 +11,8 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Quiz } from '../../quizzes/entities/quiz.entity';
 import { Lead } from '../../leads/entities/lead.entity';
+import { ProjectUser } from './project-user.entity';
+import { ProjectInvite } from './project-invite.entity';
 
 @Entity('projects')
 export class Project {
@@ -47,4 +49,10 @@ export class Project {
 
   @OneToMany(() => Lead, (lead) => lead.project)
   leads: Lead[];
+
+  @OneToMany(() => ProjectUser, (projectUser) => projectUser.project)
+  projectUsers: ProjectUser[];
+
+  @OneToMany(() => ProjectInvite, (invite) => invite.project)
+  invites: ProjectInvite[];
 } 
