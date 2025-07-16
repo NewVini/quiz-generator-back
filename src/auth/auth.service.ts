@@ -1,12 +1,19 @@
-import { Injectable, UnauthorizedException, ConflictException, ForbiddenException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { User } from '../users/entities/user.entity';
+import { User, AuthProvider, UserRole } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+
+interface OAuthUserData {
+  email: string;
+  name: string;
+  avatar_url?: string;
+  provider_id: string;
+  auth_provider: AuthProvider;
+}
 
 @Injectable()
 export class AuthService {
@@ -14,7 +21,6 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-    private readonly subscriptionsService: SubscriptionsService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -39,13 +45,14 @@ export class AuthService {
       password_hash: passwordHash,
       name,
       phone,
-      role: 'owner' as any,
+      role: UserRole.CREATOR,
+      auth_provider: AuthProvider.LOCAL,
     });
 
     const savedUser = await this.userRepository.save(user);
 
     // Generate JWT token
-    const payload = { sub: savedUser.id, email: savedUser.email, role: savedUser.role };
+    const payload = { sub: savedUser.id, email: savedUser.email };
     const token = this.jwtService.sign(payload);
 
     return {
@@ -55,9 +62,10 @@ export class AuthService {
         email: savedUser.email,
         phone: savedUser.phone,
         role: savedUser.role,
+        auth_provider: savedUser.auth_provider,
+        avatar_url: savedUser.avatar_url,
       },
       token,
-      message: 'Usuário registrado com sucesso. Crie uma subscription para acessar o sistema.',
     };
   }
 
@@ -73,6 +81,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Check if user is using OAuth
+    if (user.auth_provider !== AuthProvider.LOCAL) {
+      throw new UnauthorizedException('Please login with your OAuth provider');
+    }
+
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
@@ -80,62 +93,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Se for admin, permite login sem subscription
-    if (user.role === 'admin') {
-      const payload = { sub: user.id, email: user.email, role: user.role };
-      const token = this.jwtService.sign(payload);
-      return {
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-        },
-        subscription: null,
-        token,
-        message: 'Login de admin permitido sem necessidade de subscription.'
-      };
-    }
-
-    // Check if user has active subscription
-    const activeSubscription = await this.subscriptionsService.findActiveByUserId(user.id);
-    
-    if (!activeSubscription) {
-      throw new ForbiddenException({
-        message: 'Subscription required',
-        code: 'SUBSCRIPTION_REQUIRED',
-        details: {
-          message: 'Você precisa de uma subscription ativa para acessar o sistema',
-          availablePlans: await this.subscriptionsService.getAvailablePlans(),
-          user_id: user.id
-        }
-      });
-    }
-
-    // Check if subscription is expired
-    const currentDate = new Date();
-    const endDate = new Date(activeSubscription.end_date);
-    
-    if (endDate < currentDate) {
-      throw new ForbiddenException({
-        message: 'Subscription expired',
-        code: 'SUBSCRIPTION_EXPIRED',
-        details: {
-          message: 'Sua subscription expirou. Renove para continuar usando o sistema.',
-          subscription: {
-            id: activeSubscription.id,
-            plan_type: activeSubscription.plan_type,
-            end_date: activeSubscription.end_date,
-            next_billing: activeSubscription.next_billing
-          },
-          user_id: user.id
-        }
-      });
-    }
-
     // Generate JWT token
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = { sub: user.id, email: user.email };
     const token = this.jwtService.sign(payload);
 
     return {
@@ -145,25 +104,45 @@ export class AuthService {
         email: user.email,
         phone: user.phone,
         role: user.role,
-      },
-      subscription: {
-        id: activeSubscription.id,
-        plan_type: activeSubscription.plan_type,
-        status: activeSubscription.status,
-        end_date: activeSubscription.end_date,
-        next_billing: activeSubscription.next_billing,
-        quizzes_limit: activeSubscription.quizzes_limit,
-        leads_limit: activeSubscription.leads_limit,
-        quizzes_used: activeSubscription.quizzes_used,
-        leads_used: activeSubscription.leads_used,
-        price: activeSubscription.price
+        auth_provider: user.auth_provider,
+        avatar_url: user.avatar_url,
       },
       token,
     };
   }
 
+  async findOrCreateOAuthUser(oauthData: OAuthUserData): Promise<User> {
+    // Primeiro, tentar encontrar usuário pelo email
+    let user = await this.userRepository.findOne({
+      where: { email: oauthData.email },
+    });
+
+          if (user) {
+        // Se o usuário existe mas não tem provider_id, atualizar
+        if (!user.provider_id) {
+          user.provider_id = oauthData.provider_id;
+          user.auth_provider = oauthData.auth_provider;
+          user.avatar_url = oauthData.avatar_url || null;
+          await this.userRepository.save(user);
+        }
+        return user;
+      }
+
+    // Se não existe, criar novo usuário
+    const newUser = this.userRepository.create({
+      email: oauthData.email,
+      name: oauthData.name,
+      avatar_url: oauthData.avatar_url || null,
+      provider_id: oauthData.provider_id,
+      auth_provider: oauthData.auth_provider,
+      role: UserRole.CREATOR,
+    });
+
+    return await this.userRepository.save(newUser);
+  }
+
   async generateTokenForUser(user: User) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = { sub: user.id, email: user.email };
     return this.jwtService.sign(payload);
   }
 
